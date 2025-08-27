@@ -1,0 +1,7 @@
+package com.duong.dao;
+
+import com.duong.models.UserModel;
+
+public interface UserDao {
+    UserModel getUser(String username);
+}

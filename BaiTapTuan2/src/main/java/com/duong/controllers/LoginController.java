@@ -42,11 +42,7 @@ public class LoginController extends HttpServlet {
 
         if (user != null) {
             HttpSession session = req.getSession(true);
-            session.setAttribute("account", user);
-
-            alertMsg = "Đăng nhập thành công";
-            req.setAttribute("alert", alertMsg);
-            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            session.setAttribute("username", username);
 
             if (isRememberMe) {
                 saveRememberMe(resp, username);
@@ -54,7 +50,7 @@ public class LoginController extends HttpServlet {
 
             resp.sendRedirect(req.getContextPath() + "/home");
         } else {
-            alertMsg = "Tài khoản hoặc mật khẩu không đúng";
+            alertMsg = "Tài khoản hoặc mật khẩu sai";
             req.setAttribute("alert", alertMsg);
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         }

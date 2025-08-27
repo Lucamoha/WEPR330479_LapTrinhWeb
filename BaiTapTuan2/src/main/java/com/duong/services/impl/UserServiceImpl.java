@@ -22,4 +22,9 @@ public class UserServiceImpl implements UserService {
 
         return null;
     }
+
+    @Override
+    public boolean register(String username, String password) {
+        return userDao.register(username, password);
+    }
 }

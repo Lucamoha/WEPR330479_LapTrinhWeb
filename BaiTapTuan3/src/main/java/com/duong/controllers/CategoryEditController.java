@@ -10,13 +10,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.RequestContext;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 
 @WebServlet(urlPatterns = { "/category/edit" })
@@ -35,41 +35,57 @@ public class CategoryEditController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         CategoryModel category = new CategoryModel();
-        DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
-        ServletFileUpload servletFileUpload = new ServletFileUpload(diskFileItemFactory);
-        servletFileUpload.setHeaderEncoding("UTF-8");
+
+        DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+        JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
+        upload.setHeaderCharset(Charset.forName("UTF-8"));
+
         try {
-            resp.setContentType("text/html");
+            resp.setContentType("text/html; charset=UTF-8");
             resp.setCharacterEncoding("UTF-8");
             req.setCharacterEncoding("UTF-8");
-            List<FileItem> items = servletFileUpload.parseRequest((RequestContext) req);
+
+            List<FileItem> items = upload.parseRequest(req);
+
             for (FileItem item : items) {
-                if (item.getFieldName().equals("id")) {
-                    category.setCateID(Integer.parseInt(item.getString()));
-                }
-                else if (item.getFieldName().equals("name")) {
-                    category.setCateName(item.getString("UTF-8"));
-                }
-                else if (item.getFieldName().equals("icon")) {
-                    if (item.getSize() > 0) {// neu co file d
-                        String originalFileName = item.getName();
-                        int index = originalFileName.lastIndexOf(".");
-                        String ext = originalFileName.substring(index + 1);
-                        String fileName = System.currentTimeMillis() + "." + ext;
-                        File file = new File(Constant.DIR + "/category/" + fileName);
-                        item.write(file);
-                        category.setIcon("category/"+fileName);
+                if (item.isFormField()) {
+                    switch (item.getFieldName()) {
+                        case "id":
+                            category.setCateID(Integer.parseInt(item.getString()));
+                            break;
+                        case "name":
+                            category.setCateName(item.getString(Charset.forName("UTF-8")));
+                            break;
                     }
-                    else {
-                        category.setIcon(null);
+                } else {
+                    if ("icon".equals(item.getFieldName()) && item.getSize() > 0) {
+                        String originalFileName = item.getName();
+                        String ext = "";
+                        int index = originalFileName.lastIndexOf(".");
+                        if (index > 0) {
+                            ext = originalFileName.substring(index + 1);
+                        }
+                        String fileName = System.currentTimeMillis() + (ext.isEmpty() ? "" : "." + ext);
+                        File file = new File(Constant.DIR + "/category", fileName);
+
+                        if (!file.getParentFile().exists()) {
+                            file.getParentFile().mkdirs();
+                        }
+
+                        item.write(file.toPath());
+                        category.setIcon("category/" + fileName);
+                    } else {
+                        CategoryModel old = cateService.get(category.getCateID());
+                        if (old != null) {
+                            category.setIcon(old.getIcon());
+                        }
                     }
                 }
             }
 
             cateService.edit(category);
             resp.sendRedirect(req.getContextPath() + "/category/list");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

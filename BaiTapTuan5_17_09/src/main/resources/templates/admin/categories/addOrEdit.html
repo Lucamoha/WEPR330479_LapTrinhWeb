@@ -7,7 +7,7 @@
         <form th:action="@{/admin/categories/save}" th:object="${category}" method="post">
             <div class="card">
                 <div class="card-header">
-                    <h3 th:text="${category.id != null} ? 'Edit Category' : 'Add Category'"></h3>
+                    <h3 th:text="${category.getName() != null} ? 'Edit Category' : 'Add Category'"></h3>
                 </div>
                 <div class="card-body">
                     <input type="hidden" th:field="*{id}"/>

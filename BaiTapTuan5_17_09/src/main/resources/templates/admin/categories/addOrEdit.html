@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin}">
+<section layout:fragment="content" class="row">
+    <div class="col-6 offset-3">
+        <form th:action="@{/admin/categories/save}" th:object="${category}" method="post">
+            <div class="card">
+                <div class="card-header">
+                    <h3 th:text="${category.id != null} ? 'Edit Category' : 'Add Category'"></h3>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" th:field="*{id}"/>
+                    <div class="mb-3">
+                        <label for="name">Category Name</label>
+                        <input type="text" th:field="*{name}" id="name" class="form-control"/>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+</html>

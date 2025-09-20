@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin}">
+<section layout:fragment="content" class="row">
+    <div class="col-6 offset-3">
+        <form th:action="@{/admin/video/save}" th:object="${video}" method="post" enctype="multipart/form-data">
+            <div class="card">
+                <div class="card-header">
+                    <h3 th:text="${video.getTitle() != null} ? 'Edit Video' : 'Add Video'"></h3>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" th:field="*{id}"/>
+                    <div class="mb-3">
+                        <label for="title">Video Title</label>
+                        <input type="text" th:field="*{title}" id="title" class="form-control"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description">Video Description</label>
+                        <input type="text" th:field="*{description}" id="description" class="form-control"/>
+                    </div>
+                    <label>Video</label>
+
+                    <!-- Hiển thị ảnh hiện tại nếu có -->
+                    <div th:if="${video.url}">
+                        <video controls style="max-width:300px" th:src="@{|/uploads/videos/${video.url}|}"></video>
+                    </div>
+                    <input type="file" name="videoFileUpload" accept="video/*">
+
+                    <hr>
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <hr>
+                    <a th:href="@{/admin/video}">Quay lại</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin}">
+<section layout:fragment="content" class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <span>List Category</span>
+        <a class="btn btn-success" th:href="@{/admin/categories/add}">+ Add New</a>
+      </div>
+      <div class="card-body">
+        <!-- Form tìm kiếm -->
+        <form th:action="@{/admin/categories/search}" method="get" class="mb-3 d-flex" enctype="multipart/form-data">
+          <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..."
+                 class="form-control me-2"/>
+          <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
+
+        <!-- Bảng dữ liệu -->
+        <table class="table table-striped" th:if="${categoryPage.hasContent()}">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="cat : ${categoryPage.content}">
+            <td th:text="${cat.id}"></td>
+            <td th:text="${cat.name}"></td>
+            <td >
+              <div th:if="${cat.image != null}">
+                <img th:src="@{|/uploads/images/${cat.image}|}" alt="" style="max-height:80px">
+              </div>
+            </td>
+            <td>
+              <a th:href="@{'/admin/categories/edit/' + ${cat.id}}"
+                 class="btn btn-warning btn-sm">Edit</a>
+              <a th:href="@{'/admin/categories/delete/' + ${cat.id}}"
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Are you sure?')">Delete</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <nav th:if="${categoryPage.totalPages > 1}">
+          <ul class="pagination">
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, categoryPage.totalPages-1)}"
+                th:classappend="${i == categoryPage.number} ? 'active'">
+              <a class="page-link"
+                 th:href="@{/admin/categories/search(keyword=${keyword}, page=${i}, size=${categoryPage.size})}"
+                 th:text="${i+1}"></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+</html>
